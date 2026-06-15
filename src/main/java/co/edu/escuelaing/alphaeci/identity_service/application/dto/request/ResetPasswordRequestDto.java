@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@Data
 public class ResetPasswordRequestDto {
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")

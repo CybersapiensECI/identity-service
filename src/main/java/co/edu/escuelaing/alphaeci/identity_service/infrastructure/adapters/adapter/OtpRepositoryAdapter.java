@@ -26,16 +26,16 @@ public class OtpRepositoryAdapter implements OtpRepositoryPort {
         if (type == OtpType.EMAIL_VERIFICATION) {
             otpRedisRepository.save(OtpCache.builder()
                     .email(email)
-                    .code(otp.getCodigo().value())
-                    .used(Boolean.TRUE.equals(otp.getUsado()))
-                    .attempts(otp.getIntentos() != null ? otp.getIntentos() : 0)
+                    .code(otp.getCode().value())
+                    .used(Boolean.TRUE.equals(otp.getUsed()))
+                    .attempts(otp.getAttempts() != null ? otp.getAttempts() : 0)
                     .build());
         } else {
             passwordResetOtpRedisRepository.save(PasswordResetOtpCache.builder()
                     .email(email)
-                    .code(otp.getCodigo().value())
-                    .used(Boolean.TRUE.equals(otp.getUsado()))
-                    .attempts(otp.getIntentos() != null ? otp.getIntentos() : 0)
+                    .code(otp.getCode().value())
+                    .used(Boolean.TRUE.equals(otp.getUsed()))
+                    .attempts(otp.getAttempts() != null ? otp.getAttempts() : 0)
                     .build());
         }
     }
@@ -59,19 +59,19 @@ public class OtpRepositoryAdapter implements OtpRepositoryPort {
 
     private OtpEmbedded fromOtpCache(OtpCache cache) {
         OtpEmbedded otp = new OtpEmbedded();
-        otp.setCodigo(new OtpCode(cache.getCode()));
-        otp.setExpiraEn(null); // expiry delegated to Redis TTL
-        otp.setUsado(cache.isUsed());
-        otp.setIntentos(cache.getAttempts());
+        otp.setCode(new OtpCode(cache.getCode()));
+        otp.setExpiresAt(null); // expiry delegated to Redis TTL
+        otp.setUsed(cache.isUsed());
+        otp.setAttempts(cache.getAttempts());
         return otp;
     }
 
     private OtpEmbedded fromPasswordResetCache(PasswordResetOtpCache cache) {
         OtpEmbedded otp = new OtpEmbedded();
-        otp.setCodigo(new OtpCode(cache.getCode()));
-        otp.setExpiraEn(null); // expiry delegated to Redis TTL
-        otp.setUsado(cache.isUsed());
-        otp.setIntentos(cache.getAttempts());
+        otp.setCode(new OtpCode(cache.getCode()));
+        otp.setExpiresAt(null); // expiry delegated to Redis TTL
+        otp.setUsed(cache.isUsed());
+        otp.setAttempts(cache.getAttempts());
         return otp;
     }
 }

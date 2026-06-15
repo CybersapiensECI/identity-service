@@ -16,4 +16,8 @@ public record OtpCode(String value) {
             throw new OtpInvalidException("OTP must be a 6-digit number");
         }
     }
+
+    public static OtpCode of(String value) {
+        return new OtpCode(value);
+    }
 }
