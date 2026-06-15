@@ -63,9 +63,6 @@ public class OtpUseCase implements OtpPort {
 
         new OtpCode(code);
 
-        userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new InvalidInputException("No account found for this email"));
-
         OtpEmbedded otp = otpRepository.findByEmail(normalizedEmail, OtpType.EMAIL_VERIFICATION)
                 .orElseThrow(() -> new OtpExpiredException("OTP has expired. Please request a new one"));
 
