@@ -1,3 +1,23 @@
 spring:
   application:
     name: identity-service
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+
+app:
+  jwt:
+    expiration: 900000          # 15 minutes in ms
+    refresh-expiration: 604800000   # 7 days in ms
+  otp:
+    expiration-minutes: 10
+    max-attempts: 5

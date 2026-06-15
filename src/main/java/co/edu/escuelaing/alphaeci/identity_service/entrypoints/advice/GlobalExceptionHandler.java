@@ -1,6 +1,5 @@
 package co.edu.escuelaing.alphaeci.identity_service.entrypoints.advice;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,13 +11,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import co.edu.escuelaing.alphaeci.identity_service.domain.exceptions.IdentityServiceException;
 
-
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(MethodArgumentNotValidException.class) //cuando fallan validaciones de entrada como @Email
+    @ExceptionHandler(MethodArgumentNotValidException.class) // cuando fallan validaciones de entrada como @Email
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         String firstError = ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
@@ -46,7 +43,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralErrors(Exception ex) {
         log.error("Unexpected error: {}", ex.getMessage(), ex);
-        ErrorResponse errorResponse = new ErrorResponse("Error interno del servidor", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        ErrorResponse errorResponse = new ErrorResponse("Error interno del servidor",
+                HttpStatus.INTERNAL_SERVER_ERROR.value());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
