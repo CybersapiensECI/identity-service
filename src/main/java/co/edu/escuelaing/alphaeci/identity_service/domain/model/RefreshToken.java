@@ -31,8 +31,8 @@ public class RefreshToken {
      * @param expiraRefresh expiration time of the refresh token
      */
     public RefreshToken(String id, String userId, String email, String jwt, String refreshToken,
-                        LocalDateTime expiraJwt, Boolean revocado,
-                        LocalDateTime createdAt, LocalDateTime expiraRefresh) {
+            LocalDateTime expiraJwt, Boolean revocado,
+            LocalDateTime createdAt, LocalDateTime expiraRefresh) {
         this.id = id;
         this.userId = userId;
         this.email = email;
@@ -60,24 +60,52 @@ public class RefreshToken {
     }
 
     /** @return unique session identifier */
-    public String getId() { return id; }
+    public String getId() {
+        return id;
+    }
+
     /** @return ID of the authenticated user */
-    public String getUserId() { return userId; }
+    public String getUserId() {
+        return userId;
+    }
+
     /** @return email of the authenticated user */
-    public String getEmail() { return email; }
+    public String getEmail() {
+        return email;
+    }
+
     /** @return JWT access token */
-    public String getJwt() { return jwt; }
+    public String getJwt() {
+        return jwt;
+    }
+
     /** @return refresh token value */
-    public String getRefreshToken() { return token; }
+    public String getRefreshToken() {
+        return token;
+    }
+
     /** @return expiration time of the access token */
-    public LocalDateTime getExpiraJwt() { return expiraJwt; }
+    public LocalDateTime getExpiraJwt() {
+        return expiraJwt;
+    }
+
     /** @return whether the session is revoked */
-    public Boolean getRevocado() { return revocado; }
+    public Boolean getRevocado() {
+        return revocado;
+    }
+
     /** @return session creation timestamp */
-    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     /** @return expiration time of the refresh token */
-    public LocalDateTime getExpiraRefresh() { return expiraRefresh; }
+    public LocalDateTime getExpiraRefresh() {
+        return expiraRefresh;
+    }
 
     /** @param revocado true to mark the session as revoked */
-    public void setRevocado(Boolean revocado) { this.revocado = revocado; }
+    public void setRevocado(Boolean revocado) {
+        this.revocado = revocado;
+    }
 }

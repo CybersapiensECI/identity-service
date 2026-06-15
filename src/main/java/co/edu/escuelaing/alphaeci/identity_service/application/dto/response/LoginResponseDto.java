@@ -1,4 +1,4 @@
-package co.edu.escuelaing.alphaeci.identity_service.application.dto.request;
+package co.edu.escuelaing.alphaeci.identity_service.application.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

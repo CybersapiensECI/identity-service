@@ -1,4 +1,4 @@
-package edu.eci.patricia.DOSW_patricia.domain.valueobjects;
+package co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects;
 
 import java.time.LocalDateTime;
 
