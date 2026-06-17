@@ -58,13 +58,16 @@ jobs:
 
       - name: Deploy to QA Container App
         run: |
+          az containerapp registry set \
+            --name alphaeci-identity-service-qa \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --server ghcr.io \
+            --username ${{ github.repository_owner }} \
+            --password ${{ secrets.GHCR_TOKEN }}
           az containerapp update \
             --name alphaeci-identity-service-qa \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-${{ github.sha }} \
-            --registry-server ghcr.io \
-            --registry-username ${{ github.repository_owner }} \
-            --registry-password ${{ secrets.GHCR_TOKEN }}
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-${{ github.sha }}
 
       - name: Health check QA
         run: |

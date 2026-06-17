@@ -26,10 +26,13 @@ jobs:
 
       - name: Deploy to Prod Container App
         run: |
+          az containerapp registry set \
+            --name alphaeci-identity-service-prod \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --server ghcr.io \
+            --username ${{ github.repository_owner }} \
+            --password ${{ secrets.GHCR_TOKEN }}
           az containerapp update \
             --name alphaeci-identity-service-prod \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-${{ github.event.workflow_run.head_sha }} \
-            --registry-server ghcr.io \
-            --registry-username ${{ github.repository_owner }} \
-            --registry-password ${{ secrets.GHCR_TOKEN }}
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-${{ github.event.workflow_run.head_sha }}
