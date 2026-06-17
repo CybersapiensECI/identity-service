@@ -1,0 +1,43 @@
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VHOST:/}
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+
+rabbitmq:
+  exchange:
+    identity: ${RABBITMQ_EXCHANGE}
+  routing-key:
+    otp: ${RABBITMQ_KEY_OTP}
+    password-reset: ${RABBITMQ_KEY_PASSWORD_RESET}
+    user-registered: ${RABBITMQ_KEY_USER_REGISTERED}
+    user-verified: ${RABBITMQ_KEY_USER_VERIFIED}
+    password-changed: ${RABBITMQ_KEY_PASSWORD_CHANGED}
+
+logging:
+  level:
+    co.edu.escuelaing: INFO
+    org.springframework.security: WARN
