@@ -41,6 +41,15 @@ rabbitmq:
     user-verified: "${RABBITMQ_KEY_USER_VERIFIED:identity.event.user-verified}"
     password-changed: "${RABBITMQ_KEY_PASSWORD_CHANGED:identity.event.password-changed}"
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    rabbit:
+      enabled: false
+
 logging:
   level:
     co.edu.escuelaing: DEBUG
