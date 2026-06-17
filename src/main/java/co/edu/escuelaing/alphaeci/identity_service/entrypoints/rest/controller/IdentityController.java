@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,11 +30,6 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.ports.in.PasswordPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.in.VerificationPort;
 import co.edu.escuelaing.alphaeci.identity_service.entrypoints.advice.ErrorResponse;
 
-@Tag(name = "Authentication",
-        description = "Full authentication lifecycle: OTP-based email verification, credential login with "
-                + "brute-force protection, JWT token refresh and revocation, and all password operations "
-                + "(forgot, reset, authenticated change). Tokens are HMAC-SHA256 signed JWTs. "
-                + "Endpoints with a lock icon require a valid Bearer token in the Authorization header.")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -48,7 +42,7 @@ public class IdentityController {
 
     // ─── Verification ────────────────────────────────────────────────────────
 
-    @Operation(summary = "Initialize OTP verification",
+    @Operation(tags = {"Verification"}, summary = "Initialize OTP verification",
             description = "Called after a new account is created. Generates a cryptographically random 6-digit "
                     + "OTP, stores it in Redis with a 10-minute TTL, and sends it to the institutional email. "
                     + "The OTP is NOT returned — call POST /verify-otp to activate the account.")
@@ -71,7 +65,7 @@ public class IdentityController {
 
     // ─── OTP ─────────────────────────────────────────────────────────────────
 
-    @Operation(summary = "Validate OTP and activate account",
+    @Operation(tags = {"OTP"}, summary = "Validate OTP and activate account",
             description = "Validates the 6-digit OTP sent during registration. On success: account is marked "
                     + "verified and ACTIVE, and a token pair (access 15 min + refresh 7 days) is returned. "
                     + "After 3 consecutive wrong attempts the OTP is deleted — call POST /resend-otp first.")
@@ -98,7 +92,7 @@ public class IdentityController {
         return ResponseEntity.ok(otpPort.validateOtp(request.getEmail(), request.getCode()));
     }
 
-    @Operation(summary = "Resend OTP",
+    @Operation(tags = {"OTP"}, summary = "Resend OTP",
             description = "Generates and sends a new 6-digit OTP to the given email. Use when the previous "
                     + "OTP expired (10-minute TTL) or the 3-attempt limit was exhausted. Overwrites any "
                     + "existing pending code in Redis.")
@@ -120,7 +114,7 @@ public class IdentityController {
 
     // ─── Login / Session ─────────────────────────────────────────────────────
 
-    @Operation(summary = "Login",
+    @Operation(tags = {"Auth"}, summary = "Login",
             description = "Authenticates a verified user and returns a JWT access token (15 min) and refresh "
                     + "token (7 days). After 5 consecutive failed attempts the account is temporarily locked.")
     @ApiResponse(responseCode = "200", description = "Authentication successful. Token pair returned.",
@@ -148,7 +142,7 @@ public class IdentityController {
         return ResponseEntity.ok(loginPort.login(request.getEmail(), request.getPassword()));
     }
 
-    @Operation(summary = "Refresh access token",
+    @Operation(tags = {"Auth"}, summary = "Refresh access token",
             description = "Exchanges a valid refresh token for a new token pair. Implements token rotation: "
                     + "the submitted refresh token is immediately invalidated and replaced. Clients must store "
                     + "the new refresh token and discard the old one.")
@@ -170,7 +164,7 @@ public class IdentityController {
     }
 
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Logout",
+    @Operation(tags = {"Auth"}, summary = "Logout",
             description = "Revokes the current session's refresh token. After logout the refresh token can no "
                     + "longer generate new access tokens. The access token remains valid until its 15-minute "
                     + "natural expiry — clients must discard both tokens immediately.")
@@ -194,7 +188,7 @@ public class IdentityController {
 
     // ─── Password ────────────────────────────────────────────────────────────
 
-    @Operation(summary = "Forgot password",
+    @Operation(tags = {"Password"}, summary = "Forgot password",
             description = "Initiates password recovery. A 6-digit numeric code is generated, stored in Redis "
                     + "with a 15-minute TTL, and sent to the institutional email. Call POST /reset-password "
                     + "with the code and the new password to complete recovery.")
@@ -214,7 +208,7 @@ public class IdentityController {
         return ResponseEntity.ok(new RegisterResponseDto("Recovery code sent to email"));
     }
 
-    @Operation(summary = "Reset password",
+    @Operation(tags = {"Password"}, summary = "Reset password",
             description = "Completes the password recovery started by POST /forgot-password. Validates the "
                     + "6-digit recovery code and updates the password if valid. The code is single-use and "
                     + "deleted from Redis immediately upon success.")
@@ -245,7 +239,7 @@ public class IdentityController {
     }
 
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Change password",
+    @Operation(tags = {"Password"}, summary = "Change password",
             description = "Allows an authenticated user to change their password. Requires a valid Bearer token "
                     + "in the Authorization header. The current password is verified before applying the update. "
                     + "Use POST /forgot-password for forgotten passwords.")

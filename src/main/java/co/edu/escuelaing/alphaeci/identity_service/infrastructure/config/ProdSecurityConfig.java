@@ -28,13 +28,15 @@ public class ProdSecurityConfig {
                         .requestMatchers(
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/refresh",
-                                "/api/v1/auth/otp/validate",
-                                "/api/v1/auth/otp/resend",
-                                "/api/v1/auth/verify",
+                                "/api/v1/auth/init-verification",
+                                "/api/v1/auth/verify-otp",
+                                "/api/v1/auth/resend-otp",
                                 "/api/v1/auth/forgot-password",
                                 "/api/v1/auth/reset-password",
                                 "/actuator/health",
+                                "/actuator/health/**",
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .anyRequest().authenticated()
