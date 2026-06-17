@@ -29,4 +29,7 @@ jobs:
           az containerapp update \
             --name alphaeci-identity-service-prod \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-${{ github.event.workflow_run.head_sha }}
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-${{ github.event.workflow_run.head_sha }} \
+            --registry-server ghcr.io \
+            --registry-username ${{ github.repository_owner }} \
+            --registry-password ${{ secrets.GHCR_TOKEN }}
