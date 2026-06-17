@@ -12,6 +12,7 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.model.OtpType;
 import co.edu.escuelaing.alphaeci.identity_service.domain.model.User;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.in.PasswordPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.EmailSenderPort;
+import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.JwtProviderPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.OtpRepositoryPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.PasswordEncoderPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.UserRepositoryPort;
@@ -31,9 +32,11 @@ public class PasswordUseCase implements PasswordPort {
     private final PasswordEncoderPort passwordEncoder;
     private final OtpRepositoryPort otpRepository;
     private final EmailSenderPort emailSender;
+    private final JwtProviderPort jwtProvider;
 
     @Override
-    public void changePassword(String userId, String currentPassword, String newPassword) {
+    public void changePassword(String accessToken, String currentPassword, String newPassword) {
+        String userId = jwtProvider.extractUserId(accessToken);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidInputException("User not found"));
 

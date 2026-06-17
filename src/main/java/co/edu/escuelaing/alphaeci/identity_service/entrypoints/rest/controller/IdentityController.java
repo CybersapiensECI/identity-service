@@ -29,7 +29,6 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.ports.in.LoginPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.in.OtpPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.in.PasswordPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.in.VerificationPort;
-import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.JwtProviderPort;
 import co.edu.escuelaing.alphaeci.identity_service.entrypoints.advice.ErrorResponse;
 
 @Tag(name = "Authentication",
@@ -46,7 +45,6 @@ public class IdentityController {
     private final OtpPort otpPort;
     private final VerificationPort verificationPort;
     private final PasswordPort passwordPort;
-    private final JwtProviderPort jwtProvider;
 
     // ─── Verification ────────────────────────────────────────────────────────
 
@@ -270,8 +268,7 @@ public class IdentityController {
             @RequestHeader("Authorization") String authHeader,
             @Valid @RequestBody ChangePasswordRequestDto request) {
         String token = authHeader.replace("Bearer ", "").trim();
-        String userId = jwtProvider.extractUserId(token);
-        passwordPort.changePassword(userId, request.getCurrentPassword(), request.getNewPassword());
+        passwordPort.changePassword(token, request.getCurrentPassword(), request.getNewPassword());
         return ResponseEntity.ok(new RegisterResponseDto("Password changed successfully"));
     }
 }
