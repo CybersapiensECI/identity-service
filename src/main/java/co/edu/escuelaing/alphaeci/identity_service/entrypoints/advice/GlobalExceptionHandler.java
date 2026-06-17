@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import co.edu.escuelaing.alphaeci.identity_service.domain.exceptions.IdentityServiceException;
 
@@ -38,6 +39,13 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
         log.warn("Missing required parameter: {}", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(NoResourceFoundException ex) {
+        return new ResponseEntity<>(
+                new ErrorResponse("Resource not found", HttpStatus.NOT_FOUND.value()),
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
