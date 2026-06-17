@@ -1,0 +1,47 @@
+spring:
+  rabbitmq:
+    host: "${RABBITMQ_HOST:localhost}"
+    port: "${RABBITMQ_PORT:5672}"
+    username: "${RABBITMQ_USERNAME:guest}"
+    password: "${RABBITMQ_PASSWORD:guest}"
+  datasource:
+    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/identity_db}"
+    username: "${SPRING_DATASOURCE_USERNAME:postgres}"
+    password: "${SPRING_DATASOURCE_PASSWORD:postgres}"
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: "${SPRING_REDIS_HOST:localhost}"
+      port: "${SPRING_REDIS_PORT:6379}"
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  jwt:
+    secret: "${APP_JWT_SECRET:8ZXzTzsB5yWexiCkv/EHBVYvJbr1qHOwJv44xm/mDFo=}"
+    expiration: "${APP_JWT_EXPIRATION:900000}"
+    refresh-expiration: "${APP_JWT_REFRESH_EXPIRATION:604800000}"
+  otp:
+    expiration-minutes: 10
+    max-attempts: 5
+
+rabbitmq:
+  exchange:
+    identity: "${RABBITMQ_EXCHANGE:identity.exchange}"
+  routing-key:
+    otp: "${RABBITMQ_KEY_OTP:identity.email.otp}"
+    password-reset: "${RABBITMQ_KEY_PASSWORD_RESET:identity.email.password-reset}"
+    user-registered: "${RABBITMQ_KEY_USER_REGISTERED:identity.event.user-registered}"
+    user-verified: "${RABBITMQ_KEY_USER_VERIFIED:identity.event.user-verified}"
+    password-changed: "${RABBITMQ_KEY_PASSWORD_CHANGED:identity.event.password-changed}"
+
+logging:
+  level:
+    co.edu.escuelaing: DEBUG
+    org.springframework.security: DEBUG
