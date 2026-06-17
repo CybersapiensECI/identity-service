@@ -1,4 +1,10 @@
 spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VHOST:/}
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -20,6 +26,16 @@ spring:
 app:
   jwt:
     secret: ${JWT_SECRET}
+
+rabbitmq:
+  exchange:
+    identity: ${RABBITMQ_EXCHANGE}
+  routing-key:
+    otp: ${RABBITMQ_KEY_OTP}
+    password-reset: ${RABBITMQ_KEY_PASSWORD_RESET}
+    user-registered: ${RABBITMQ_KEY_USER_REGISTERED}
+    user-verified: ${RABBITMQ_KEY_USER_VERIFIED}
+    password-changed: ${RABBITMQ_KEY_PASSWORD_CHANGED}
 
 logging:
   level:
