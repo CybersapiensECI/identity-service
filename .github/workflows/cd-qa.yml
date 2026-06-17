@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: alphaeci/identity-service
+  IMAGE_NAME: cybersapienseci/identity-service
   RESOURCE_GROUP: alphaECI-prod
 
 jobs:
