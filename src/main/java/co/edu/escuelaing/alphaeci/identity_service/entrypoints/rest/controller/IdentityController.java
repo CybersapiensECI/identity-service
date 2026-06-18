@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.escuelaing.alphaeci.identity_service.application.dto.request.ChangePasswordRequestDto;
+import co.edu.escuelaing.alphaeci.identity_service.application.dto.request.CompleteRegistrationRequestDto;
 import co.edu.escuelaing.alphaeci.identity_service.application.dto.request.LoginRequestDto;
 import co.edu.escuelaing.alphaeci.identity_service.application.dto.request.RefreshTokenRequestDto;
+import co.edu.escuelaing.alphaeci.identity_service.infrastructure.adapters.persistence.mapper.RegistrationProfileMapper;
 import co.edu.escuelaing.alphaeci.identity_service.application.dto.request.ResetPasswordRequestDto;
 import co.edu.escuelaing.alphaeci.identity_service.application.dto.request.ValidateOtpRequestDto;
 import co.edu.escuelaing.alphaeci.identity_service.application.dto.request.VerificationRequestDto;
@@ -39,13 +41,14 @@ public class IdentityController {
     private final OtpPort otpPort;
     private final VerificationPort verificationPort;
     private final PasswordPort passwordPort;
+    private final RegistrationProfileMapper registrationProfileMapper;
 
     // ─── Verification ────────────────────────────────────────────────────────
 
-    @Operation(tags = {"Verification"}, summary = "Initialize OTP verification",
-            description = "Called after a new account is created. Generates a cryptographically random 6-digit "
-                    + "OTP, stores it in Redis with a 10-minute TTL, and sends it to the institutional email. "
-                    + "The OTP is NOT returned — call POST /verify-otp to activate the account.")
+    @Operation(tags = {"Verification"}, summary = "Register and send OTP",
+            description = "Creates a new account (status PENDING_VERIFICATION) and sends a 6-digit OTP to the "
+                    + "institutional email. The OTP is NOT returned — call POST /verify-otp to activate the account. "
+                    + "Returns 409 if the email is already registered.")
     @ApiResponse(responseCode = "201", description = "OTP generated and dispatched to the provided email.",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = RegisterResponseDto.class)))
@@ -59,8 +62,32 @@ public class IdentityController {
     @PostMapping("/init-verification")
     public ResponseEntity<RegisterResponseDto> initVerification(
             @Valid @RequestBody VerificationRequestDto request) {
-        verificationPort.initVerification(request.getEmail());
+        verificationPort.initVerification(request.getEmail(), request.getPassword());
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterResponseDto("OTP sent to email"));
+    }
+
+    @Operation(tags = {"Verification"}, summary = "Complete registration",
+            description = "Finalises account setup after OTP verification. Accepts the student's profile data "
+                    + "and publishes a UserVerifiedEvent to the Profiles service. The account must already be "
+                    + "verified (POST /verify-otp called successfully). Returns 403 if email is not yet verified.")
+    @ApiResponse(responseCode = "200", description = "Registration complete. Profile event published.",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = RegisterResponseDto.class)))
+    @ApiResponse(responseCode = "400", description = "Validation failed: missing or invalid fields.",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "403", description = "Email not yet verified — call POST /verify-otp first.",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "500", description = "Unexpected server-side error.",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ErrorResponse.class)))
+    @PostMapping("/complete-registration")
+    public ResponseEntity<RegisterResponseDto> completeRegistration(
+            @Valid @RequestBody CompleteRegistrationRequestDto request) {
+        verificationPort.completeRegistration(
+                request.getEmail(), registrationProfileMapper.toRegistrationProfile(request));
+        return ResponseEntity.ok(new RegisterResponseDto("Registration complete"));
     }
 
     // ─── OTP ─────────────────────────────────────────────────────────────────

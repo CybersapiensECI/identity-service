@@ -31,6 +31,7 @@ public class ProdSecurityConfig {
                                 "/api/v1/auth/init-verification",
                                 "/api/v1/auth/verify-otp",
                                 "/api/v1/auth/resend-otp",
+                                "/api/v1/auth/complete-registration",
                                 "/api/v1/auth/forgot-password",
                                 "/api/v1/auth/reset-password",
                                 "/actuator/health",
