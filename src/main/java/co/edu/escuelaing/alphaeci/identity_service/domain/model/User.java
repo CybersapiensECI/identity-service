@@ -14,7 +14,7 @@ public class User {
     private PasswordHash password;
     private Role role;
     private AccountStatus status;
-    private boolean verified;
+    private boolean verified = false;
     private Integer failedAttempts;
     private LocalDateTime blockedUntil;
     private LocalDateTime createdAt;
