@@ -47,7 +47,7 @@ public class LoginUseCase implements LoginPort {
             throw new AccountBlocked("Account temporarily locked. Please try again in 30 minutes.");
         }
 
-        if (!passwordEncoder.matches(password, user.getPassword().getValue())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             lockoutRepository.incrementFailedAttempts(normalizedEmail);
             throw new InvalidCredentialsException("Invalid email or password");
         }
@@ -119,6 +119,8 @@ public class LoginUseCase implements LoginPort {
         newSession.setRevoked(false);
         newSession.setCreatedAt(LocalDateTime.now());
         newSession.setExpiresAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS));
+        newSession = refreshTokenRepository.save(newSession);
+
         newSession = refreshTokenRepository.save(newSession);
 
         return LoginResponseDto.builder()

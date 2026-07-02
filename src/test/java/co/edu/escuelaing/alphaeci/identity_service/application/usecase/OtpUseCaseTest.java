@@ -32,7 +32,6 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.RefreshToken
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.UserRepositoryPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.Email;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.OtpEmbedded;
-import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.PasswordHash;
 
 @ExtendWith(MockitoExtension.class)
 class OtpUseCaseTest {
@@ -49,14 +48,13 @@ class OtpUseCaseTest {
     private static final long TEN_MINUTES_MS = 10 * 60 * 1000L;
 
     private User pendingUser() {
-        User user = new User();
-        user.setId("user-1");
-        user.setEmail(new Email(EMAIL));
-        user.setPassword(PasswordHash.fromEncoded("$2a$10$hash"));
-        user.setRole(Role.STUDENT);
-        user.setStatus(AccountStatus.PENDING_VERIFICATION);
-        user.setVerified(false);
-        return user;
+        return User.builder()
+                .id("user-1")
+                .email(new Email(EMAIL))
+                .password("$2a$10$hash")
+                .role(Role.STUDENT)
+                .status(AccountStatus.PENDING_VERIFICATION)
+                .build();
     }
 
     // ── resendOtp ──────────────────────────────────────────
