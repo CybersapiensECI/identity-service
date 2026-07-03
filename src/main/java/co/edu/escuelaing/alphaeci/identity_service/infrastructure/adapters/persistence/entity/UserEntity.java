@@ -44,10 +44,6 @@ public class UserEntity {
 
     private Boolean verified;
 
-    private Integer failedAttempts;
-
-    private LocalDateTime blockedUntil;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

@@ -32,7 +32,6 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.PasswordEnco
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.RefreshTokenRepositoryPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.UserRepositoryPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.Email;
-import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.PasswordHash;
 
 @ExtendWith(MockitoExtension.class)
 class LoginUseCaseTest {
@@ -49,25 +48,26 @@ class LoginUseCaseTest {
     private static final String ENCODED_PASS = "$2a$10$encodedHash";
 
     private User activeVerifiedUser() {
-        User user = new User();
-        user.setId("user-123");
-        user.setEmail(new Email(TEST_EMAIL));
-        user.setPassword(PasswordHash.fromEncoded(ENCODED_PASS));
-        user.setRole(Role.STUDENT);
-        user.setStatus(AccountStatus.ACTIVE);
+        User user = User.builder()
+                .id("user-123")
+                .email(new Email(TEST_EMAIL))
+                .password(ENCODED_PASS)
+                .role(Role.STUDENT)
+                .status(AccountStatus.ACTIVE)
+                .build();
         user.setVerified(true);
         return user;
     }
 
     private RefreshToken storedSession(String tokenValue) {
-        RefreshToken rt = new RefreshToken();
-        rt.setId("session-1");
-        rt.setUserId("user-123");
-        rt.setToken(tokenValue);
-        rt.setRevoked(false);
-        rt.setCreatedAt(LocalDateTime.now());
-        rt.setExpiresAt(LocalDateTime.now().plusDays(7));
-        return rt;
+        return RefreshToken.builder()
+                .id("session-1")
+                .userId("user-123")
+                .token(tokenValue)
+                .revoked(false)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusDays(7))
+                .build();
     }
 
     // ── login ──────────────────────────────────────────────

@@ -10,11 +10,8 @@ public interface RefreshTokenRepositoryPort {
 
     Optional<RefreshToken> findByToken(String refreshToken);
 
-    Optional<RefreshToken> findByUserId(String userId);
-
     void deleteByUserId(String userId);
 
     void revoke(String token);
 
-    List<RefreshToken> findAllByUserId(String userId);
 }

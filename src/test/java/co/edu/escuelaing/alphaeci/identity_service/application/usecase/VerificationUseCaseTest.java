@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,9 +30,9 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.EventPublish
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.OtpRepositoryPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.PasswordEncoderPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.UserRepositoryPort;
+import co.edu.escuelaing.alphaeci.identity_service.domain.validation.PasswordValidator;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.Email;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.OtpEmbedded;
-import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.PasswordHash;
 
 @ExtendWith(MockitoExtension.class)
 class VerificationUseCaseTest {
@@ -41,6 +42,7 @@ class VerificationUseCaseTest {
     @Mock private EmailSenderPort emailSender;
     @Mock private PasswordEncoderPort passwordEncoder;
     @Mock private EventPublisherPort eventPublisher;
+    @Mock private PasswordValidator passwordValidator;
 
     @InjectMocks private VerificationUseCase verificationUseCase;
 
@@ -48,14 +50,13 @@ class VerificationUseCaseTest {
     private static final String VALID_PASSWORD = "SecurePass123!";
 
     private User pendingUser() {
-        User user = new User();
-        user.setId("uid-new");
-        user.setEmail(new Email(EMAIL));
-        user.setPassword(PasswordHash.fromEncoded("$2a$10$hash"));
-        user.setRole(Role.STUDENT);
-        user.setStatus(AccountStatus.PENDING_VERIFICATION);
-        user.setVerified(false);
-        return user;
+        return User.builder()
+                .id("uid-new")
+                .email(new Email(EMAIL))
+                .password("$2a$10$hash")
+                .role(Role.STUDENT)
+                .status(AccountStatus.PENDING_VERIFICATION)
+                .build();
     }
 
     private User verifiedUser() {
@@ -98,6 +99,10 @@ class VerificationUseCaseTest {
     void initVerification_weakPassword_throwsInvalidInput() {
         when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
 
+        doThrow(new InvalidInputException("Weak password"))
+            .when(passwordValidator)
+            .isValid("weak");
+
         assertThatThrownBy(() -> verificationUseCase.initVerification(EMAIL, "weak"))
                 .isInstanceOf(InvalidInputException.class);
     }
@@ -115,17 +120,6 @@ class VerificationUseCaseTest {
     // ── completeRegistration ───────────────────────────────────────────────────
 
     @Test
-    void completeRegistration_success_publishesEvent() {
-        User user = verifiedUser();
-        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
-        RegistrationProfile profile = sampleProfile();
-
-        verificationUseCase.completeRegistration(EMAIL, profile);
-
-        verify(eventPublisher).publishUserVerified(user, profile);
-    }
-
-    @Test
     void completeRegistration_userNotFound_throwsInvalidInput() {
         when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
 
@@ -139,6 +133,17 @@ class VerificationUseCaseTest {
 
         assertThatThrownBy(() -> verificationUseCase.completeRegistration(EMAIL, sampleProfile()))
                 .isInstanceOf(EmailNotVerifiedException.class);
+    }
+
+    @Test
+    void completeRegistration_success_publishesEvent() {
+        User user = verifiedUser();
+        RegistrationProfile profile = sampleProfile();
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+
+        verificationUseCase.completeRegistration(EMAIL, profile);
+
+        verify(eventPublisher).publishUserVerified(user, profile);
     }
 
     @Test

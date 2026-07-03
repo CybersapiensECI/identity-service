@@ -20,9 +20,9 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.EventPublish
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.OtpRepositoryPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.PasswordEncoderPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.UserRepositoryPort;
+import co.edu.escuelaing.alphaeci.identity_service.domain.validation.PasswordValidator;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.Email;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.OtpEmbedded;
-import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.PasswordHash;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -37,6 +37,7 @@ public class VerificationUseCase implements VerificationPort {
     private final EmailSenderPort emailSender;
     private final PasswordEncoderPort passwordEncoder;
     private final EventPublisherPort eventPublisher;
+    private final PasswordValidator passwordValidator;
 
     @Override
     public void initVerification(String email, String password) {
@@ -46,20 +47,17 @@ public class VerificationUseCase implements VerificationPort {
             throw new UserAlreadyExistsException("An account with this email already exists");
         }
 
-        new PasswordHash(password);
-
-        String encodedPassword = passwordEncoder.encode(password);
-
-        User user = new User();
-        user.setId(UUID.randomUUID().toString());
-        user.setEmail(new Email(normalizedEmail));
-        user.setPassword(PasswordHash.fromEncoded(encodedPassword));
-        user.setRole(Role.STUDENT);
-        user.setStatus(AccountStatus.PENDING_VERIFICATION);
-        user.setVerified(false);
-        user.setFailedAttempts(0);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
+        passwordValidator.isValid(password);
+        
+        User user = User.builder()
+                .id(UUID.randomUUID().toString())
+                .email(new Email(normalizedEmail))
+                .password(passwordEncoder.encode(password))
+                .role(Role.STUDENT)
+                .status(AccountStatus.PENDING_VERIFICATION)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
         userRepository.save(user);
 
         String rawCode = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));

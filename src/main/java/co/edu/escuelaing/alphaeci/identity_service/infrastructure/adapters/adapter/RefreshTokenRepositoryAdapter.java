@@ -1,14 +1,11 @@
 package co.edu.escuelaing.alphaeci.identity_service.infrastructure.adapters.adapter;
 
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
 import co.edu.escuelaing.alphaeci.identity_service.domain.model.RefreshToken;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.RefreshTokenRepositoryPort;
-import co.edu.escuelaing.alphaeci.identity_service.infrastructure.adapters.persistence.entity.RefreshTokenEntity;
 import co.edu.escuelaing.alphaeci.identity_service.infrastructure.adapters.persistence.mapper.RefreshTokenMapper;
 import co.edu.escuelaing.alphaeci.identity_service.infrastructure.adapters.persistence.repository.RefreshTokenJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,21 +25,6 @@ public class RefreshTokenRepositoryAdapter implements RefreshTokenRepositoryPort
     @Override
     public Optional<RefreshToken> findByToken(String refreshToken) {
         return repository.findByToken(refreshToken).map(mapper::toDomain);
-    }
-
-    @Override
-    public Optional<RefreshToken> findByUserId(String userId) {
-        return repository.findByUserId(userId).stream()
-                .filter(e -> !Boolean.TRUE.equals(e.getRevoked()))
-                .max(Comparator.comparing(RefreshTokenEntity::getCreatedAt))
-                .map(mapper::toDomain);
-    }
-
-    @Override
-    public List<RefreshToken> findAllByUserId(String userId) {
-        return repository.findByUserId(userId).stream()
-                .map(mapper::toDomain)
-                .toList();
     }
 
     @Override
