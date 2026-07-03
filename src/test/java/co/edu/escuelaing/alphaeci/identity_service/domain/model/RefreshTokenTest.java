@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 class RefreshTokenTest {
 
     private RefreshToken tokenWithExpiry(LocalDateTime expiresAt) {
-        RefreshToken token = new RefreshToken();
-        token.setId("tok-1");
-        token.setUserId("user-1");
-        token.setToken("jwt-refresh-value");
-        token.setRevoked(false);
-        token.setCreatedAt(LocalDateTime.now());
-        token.setExpiresAt(expiresAt);
-        return token;
+        return RefreshToken.builder()
+                .id("tok-1")
+                .userId("user-1")
+                .token("jwt-refresh-value")
+                .revoked(false)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(expiresAt)
+                .build();
     }
 
     @Test

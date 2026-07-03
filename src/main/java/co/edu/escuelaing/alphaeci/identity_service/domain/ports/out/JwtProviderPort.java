@@ -12,4 +12,6 @@ public interface JwtProviderPort {
 
     String extractUserId(String token);
 
+    String extractRole(String token);
+
 }

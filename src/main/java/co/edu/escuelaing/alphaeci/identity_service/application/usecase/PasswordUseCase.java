@@ -1,6 +1,8 @@
 package co.edu.escuelaing.alphaeci.identity_service.application.usecase;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import org.springframework.stereotype.Service;
 
@@ -16,9 +18,9 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.JwtProviderP
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.OtpRepositoryPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.PasswordEncoderPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.UserRepositoryPort;
+import co.edu.escuelaing.alphaeci.identity_service.domain.validation.PasswordValidator;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.OtpCode;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.OtpEmbedded;
-import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.PasswordHash;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,6 +35,7 @@ public class PasswordUseCase implements PasswordPort {
     private final OtpRepositoryPort otpRepository;
     private final EmailSenderPort emailSender;
     private final JwtProviderPort jwtProvider;
+    private final PasswordValidator passwordValidator;
 
     @Override
     public void changePassword(String accessToken, String currentPassword, String newPassword) {
@@ -40,12 +43,12 @@ public class PasswordUseCase implements PasswordPort {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidInputException("User not found"));
 
-        if (!passwordEncoder.matches(currentPassword, user.getPassword().getValue())) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new InvalidCredentialsException("Current password is incorrect");
         }
-
-        new PasswordHash(newPassword); // validates strength before encoding
-        user.setPassword(PasswordHash.fromEncoded(passwordEncoder.encode(newPassword)));
+        passwordValidator.isValid(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
         userRepository.update(user);
     }
 
@@ -86,11 +89,11 @@ public class PasswordUseCase implements PasswordPort {
             otpRepository.save(normalizedEmail, otp, OtpType.PASSWORD_RESET);
             throw new OtpInvalidException("OTP code is incorrect");
         }
-        new PasswordHash(newPassword);
-        
-        otpRepository.delete(normalizedEmail, OtpType.PASSWORD_RESET);
 
-        user.setPassword(PasswordHash.fromEncoded(passwordEncoder.encode(newPassword)));
+        otpRepository.delete(normalizedEmail, OtpType.PASSWORD_RESET);
+        passwordValidator.isValid(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
         userRepository.update(user);
     }
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,9 +30,9 @@ import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.JwtProviderP
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.OtpRepositoryPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.PasswordEncoderPort;
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.UserRepositoryPort;
+import co.edu.escuelaing.alphaeci.identity_service.domain.validation.PasswordValidator;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.Email;
 import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.OtpEmbedded;
-import co.edu.escuelaing.alphaeci.identity_service.domain.valueobjects.PasswordHash;
 
 @ExtendWith(MockitoExtension.class)
 class PasswordUseCaseTest {
@@ -41,6 +42,7 @@ class PasswordUseCaseTest {
     @Mock private OtpRepositoryPort otpRepository;
     @Mock private EmailSenderPort emailSender;
     @Mock private JwtProviderPort jwtProvider;
+    @Mock private PasswordValidator passwordValidator;
 
     @InjectMocks private PasswordUseCase passwordUseCase;
 
@@ -49,12 +51,13 @@ class PasswordUseCaseTest {
     private static final long FIFTEEN_MINUTES_MS = 15 * 60 * 1000L;
 
     private User activeUser() {
-        User user = new User();
-        user.setId("uid-1");
-        user.setEmail(new Email(EMAIL));
-        user.setPassword(PasswordHash.fromEncoded(ENCODED));
-        user.setRole(Role.STUDENT);
-        user.setStatus(AccountStatus.ACTIVE);
+        User user = User.builder()
+                .id("uid-1")
+                .email(new Email(EMAIL))
+                .password(ENCODED)
+                .role(Role.STUDENT)
+                .status(AccountStatus.ACTIVE)
+                .build();
         user.setVerified(true);
         return user;
     }
@@ -72,7 +75,7 @@ class PasswordUseCaseTest {
         passwordUseCase.changePassword("access-token", "OldPass1!", "NewPass1!");
 
         verify(userRepository).update(user);
-        assertThat(user.getPassword().getValue()).isEqualTo("$2a$10$newHash");
+        assertThat(user.getPassword()).isEqualTo("$2a$10$newHash");
     }
 
     @Test
@@ -99,6 +102,11 @@ class PasswordUseCaseTest {
         when(jwtProvider.extractUserId(any())).thenReturn("uid-1");
         when(userRepository.findById("uid-1")).thenReturn(Optional.of(activeUser()));
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
+
+        doThrow(new InvalidInputException("Weak password"))
+            .when(passwordValidator)
+            .isValid("weak");
+
 
         assertThatThrownBy(() -> passwordUseCase.changePassword("token", "OldPass1!", "weak"))
                 .isInstanceOf(InvalidInputException.class);
@@ -147,7 +155,7 @@ class PasswordUseCaseTest {
 
         verify(otpRepository).delete(EMAIL, OtpType.PASSWORD_RESET);
         verify(userRepository).update(user);
-        assertThat(user.getPassword().getValue()).isEqualTo("$2a$10$newHash");
+        assertThat(user.getPassword()).isEqualTo("$2a$10$newHash");
     }
 
     @Test

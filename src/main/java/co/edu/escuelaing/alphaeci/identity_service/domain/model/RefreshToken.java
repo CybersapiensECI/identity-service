@@ -2,12 +2,14 @@ package co.edu.escuelaing.alphaeci.identity_service.domain.model;
 
 import java.time.LocalDateTime;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
  * Domain model representing an active user session with JWT and refresh token.
  */
 @Data
+@Builder
 public class RefreshToken {
 
     private String id;
