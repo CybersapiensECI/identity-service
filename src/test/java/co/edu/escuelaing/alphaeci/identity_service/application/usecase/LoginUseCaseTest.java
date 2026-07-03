@@ -60,14 +60,14 @@ class LoginUseCaseTest {
     }
 
     private RefreshToken storedSession(String tokenValue) {
-        RefreshToken rt = new RefreshToken();
-        rt.setId("session-1");
-        rt.setUserId("user-123");
-        rt.setToken(tokenValue);
-        rt.setRevoked(false);
-        rt.setCreatedAt(LocalDateTime.now());
-        rt.setExpiresAt(LocalDateTime.now().plusDays(7));
-        return rt;
+        return RefreshToken.builder()
+                .id("session-1")
+                .userId("user-123")
+                .token(tokenValue)
+                .revoked(false)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusDays(7))
+                .build();
     }
 
     // ── login ──────────────────────────────────────────────

@@ -1,9 +1,12 @@
 package co.edu.escuelaing.alphaeci.identity_service.domain.validation;
 
+import org.springframework.stereotype.Component;
+
 import co.edu.escuelaing.alphaeci.identity_service.domain.exceptions.InvalidInputException;
 import lombok.Data;
 
 @Data
+@Component
 public class DefaultPasswordValidator implements PasswordValidator {
 
     private static final String SPECIAL_CHARS = "!@#$,.";

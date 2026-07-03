@@ -94,13 +94,14 @@ public class OtpUseCase implements OtpPort {
 
         refreshTokenRepository.deleteByUserId(user.getId());
 
-        RefreshToken session = new RefreshToken();
-        session.setId(UUID.randomUUID().toString());
-        session.setUserId(user.getId());
-        session.setToken(refreshTokenValue);
-        session.setRevoked(false);
-        session.setCreatedAt(LocalDateTime.now());
-        session.setExpiresAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS));
+        RefreshToken session = RefreshToken.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(user.getId())
+                .token(refreshTokenValue)
+                .revoked(false)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS))
+                .build();
         session = refreshTokenRepository.save(session);
 
         return LoginResponseDto.builder()

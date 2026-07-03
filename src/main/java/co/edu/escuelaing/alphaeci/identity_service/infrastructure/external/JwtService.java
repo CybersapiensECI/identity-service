@@ -80,4 +80,18 @@ public class JwtService implements JwtProviderPort {
             throw new TokenInvalidException("Invalid or expired token");
         }
     }
+
+    @Override
+    public String extractRole(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(signingKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get("role", String.class);
+        } catch (Exception e) {
+            throw new TokenInvalidException("Invalid or expired token");
+        }
+    }
 }

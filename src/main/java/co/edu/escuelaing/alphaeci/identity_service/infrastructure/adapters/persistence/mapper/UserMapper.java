@@ -11,8 +11,10 @@ import co.edu.escuelaing.alphaeci.identity_service.infrastructure.adapters.persi
 public interface UserMapper {
 
     @Mapping(target = "email",    expression = "java(new Email(entity.getEmail()))")
+    @Mapping(target = "password", source = "passwordHash")
     User toDomain(UserEntity entity);
 
     @Mapping(target = "email",        expression = "java(user.getEmail().getValue())")
+    @Mapping(target = "passwordHash", source = "password")
     UserEntity toEntity(User user);
 }

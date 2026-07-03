@@ -67,13 +67,14 @@ public class LoginUseCase implements LoginPort {
 
         refreshTokenRepository.deleteByUserId(user.getId());
 
-        RefreshToken session = new RefreshToken();
-        session.setId(UUID.randomUUID().toString());
-        session.setUserId(user.getId());
-        session.setToken(refreshTokenValue);
-        session.setRevoked(false);
-        session.setCreatedAt(LocalDateTime.now());
-        session.setExpiresAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS));
+        RefreshToken session = RefreshToken.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(user.getId())
+                .token(refreshTokenValue)
+                .revoked(false)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS))
+                .build();
         session = refreshTokenRepository.save(session);
 
         return LoginResponseDto.builder()
@@ -112,14 +113,14 @@ public class LoginUseCase implements LoginPort {
         String newAccessToken = jwtProvider.generateAccessToken(user);
         String newRefreshTokenValue = jwtProvider.generateRefreshToken(user);
 
-        RefreshToken newSession = new RefreshToken();
-        newSession.setId(UUID.randomUUID().toString());
-        newSession.setUserId(user.getId());
-        newSession.setToken(newRefreshTokenValue);
-        newSession.setRevoked(false);
-        newSession.setCreatedAt(LocalDateTime.now());
-        newSession.setExpiresAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS));
-        newSession = refreshTokenRepository.save(newSession);
+        RefreshToken newSession = RefreshToken.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(user.getId())
+                .token(newRefreshTokenValue)
+                .revoked(false)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS))
+                .build();
 
         newSession = refreshTokenRepository.save(newSession);
 

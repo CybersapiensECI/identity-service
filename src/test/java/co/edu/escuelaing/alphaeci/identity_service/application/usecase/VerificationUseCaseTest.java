@@ -120,17 +120,6 @@ class VerificationUseCaseTest {
     // ── completeRegistration ───────────────────────────────────────────────────
 
     @Test
-    void completeRegistration_success_publishesEvent() {
-        User user = verifiedUser();
-        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
-        RegistrationProfile profile = sampleProfile();
-
-        verificationUseCase.completeRegistration(EMAIL, profile);
-
-        verify(eventPublisher).publishUserVerified(user, profile);
-    }
-
-    @Test
     void completeRegistration_userNotFound_throwsInvalidInput() {
         when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
 
@@ -144,6 +133,17 @@ class VerificationUseCaseTest {
 
         assertThatThrownBy(() -> verificationUseCase.completeRegistration(EMAIL, sampleProfile()))
                 .isInstanceOf(EmailNotVerifiedException.class);
+    }
+
+    @Test
+    void completeRegistration_success_publishesEvent() {
+        User user = verifiedUser();
+        RegistrationProfile profile = sampleProfile();
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+
+        verificationUseCase.completeRegistration(EMAIL, profile);
+
+        verify(eventPublisher).publishUserVerified(user, profile);
     }
 
     @Test

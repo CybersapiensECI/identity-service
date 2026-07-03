@@ -1,6 +1,8 @@
 package co.edu.escuelaing.alphaeci.identity_service.application.usecase;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import org.springframework.stereotype.Service;
 
@@ -46,6 +48,7 @@ public class PasswordUseCase implements PasswordPort {
         }
         passwordValidator.isValid(newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
         userRepository.update(user);
     }
 
@@ -90,6 +93,7 @@ public class PasswordUseCase implements PasswordPort {
         otpRepository.delete(normalizedEmail, OtpType.PASSWORD_RESET);
         passwordValidator.isValid(newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
         userRepository.update(user);
     }
 }

@@ -16,9 +16,6 @@ public class User {
     private AccountStatus status;
     @Builder.Default
     private boolean verified = false;
-    @Builder.Default
-    private Integer failedAttempts = 0;
-    private LocalDateTime blockedUntil;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
