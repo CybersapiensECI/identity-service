@@ -1,9 +1,9 @@
 spring:
   rabbitmq:
-    host: ${RABBITMQ_HOST}
+    host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME}
-    password: ${RABBITMQ_PASSWORD}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
     virtual-host: ${RABBITMQ_VHOST:/}
   datasource:
     url: ${SPRING_DATASOURCE_URL}
@@ -31,13 +31,11 @@ app:
 
 rabbitmq:
   exchange:
-    identity: ${RABBITMQ_EXCHANGE}
+    identity: ${RABBITMQ_EXCHANGE:identity.exchange}
   routing-key:
-    otp: ${RABBITMQ_KEY_OTP}
-    password-reset: ${RABBITMQ_KEY_PASSWORD_RESET}
-    user-registered: ${RABBITMQ_KEY_USER_REGISTERED}
-    user-verified: ${RABBITMQ_KEY_USER_VERIFIED}
-    password-changed: ${RABBITMQ_KEY_PASSWORD_CHANGED}
+    otp: ${RABBITMQ_KEY_OTP:identity.email.otp}
+    password-reset: ${RABBITMQ_KEY_PASSWORD_RESET:identity.email.password-reset}
+    user-verified: ${RABBITMQ_KEY_USER_VERIFIED:identity.event.user-verified}
 
 logging:
   level:
