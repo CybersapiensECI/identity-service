@@ -89,6 +89,8 @@ public class OtpUseCase implements OtpPort {
         user.setStatus(AccountStatus.ACTIVE);
         userRepository.update(user);
 
+        emailSender.sendVerificationSuccess(normalizedEmail);
+
         String accessToken = jwtProvider.generateAccessToken(user);
         String refreshTokenValue = jwtProvider.generateRefreshToken(user);
 
