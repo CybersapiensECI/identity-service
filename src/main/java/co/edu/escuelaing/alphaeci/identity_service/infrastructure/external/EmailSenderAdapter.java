@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.EmailSenderPort;
+import co.edu.escuelaing.alphaeci.identity_service.infrastructure.external.dto.AccountVerifiedEventDto;
 import co.edu.escuelaing.alphaeci.identity_service.infrastructure.external.dto.OtpEventDto;
 import co.edu.escuelaing.alphaeci.identity_service.infrastructure.external.dto.PasswordResetEventDto;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,9 @@ public class EmailSenderAdapter implements EmailSenderPort {
 
     @Value("${rabbitmq.routing-key.password-reset:identity.email.password-reset}")
     private String passwordResetKey;
+
+    @Value("${rabbitmq.routing-key.verified:identity.email.verified}")
+    private String verifiedKey;
 
     private final RabbitTemplate rabbitTemplate;
 
@@ -49,6 +53,18 @@ public class EmailSenderAdapter implements EmailSenderPort {
             rabbitTemplate.convertAndSend(exchange, passwordResetKey, new PasswordResetEventDto(email, code));
         } catch (Exception e) {
             log.warn("[DEV] RabbitMQ unavailable — reset code not sent by email. Use the code from the log above. Error: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendVerificationSuccess(String email) {
+        log.info(SEPARATOR);
+        log.info("[EMAIL] Account verified confirmation for {}", email);
+        log.info(SEPARATOR);
+        try {
+            rabbitTemplate.convertAndSend(exchange, verifiedKey, new AccountVerifiedEventDto(email));
+        } catch (Exception e) {
+            log.warn("[DEV] RabbitMQ unavailable — verification confirmation not sent by email. Error: {}", e.getMessage());
         }
     }
 }
