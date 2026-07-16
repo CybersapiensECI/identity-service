@@ -15,9 +15,22 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.exchange.identity:identity.exchange}")
     private String exchange;
 
+    @Value("${rabbitmq.exchange.notification:notification.exchange}")
+    private String notificationExchange;
+
     @Bean
     public TopicExchange identityExchange() {
         return new TopicExchange(exchange, true, false);
+    }
+
+    /**
+     * Owned by the notification-service; declared here so publishing works whichever service starts
+     * first. Durable and non-auto-delete to match that declaration — publishing to an exchange that
+     * does not exist drops the message silently.
+     */
+    @Bean
+    public TopicExchange notificationExchange() {
+        return new TopicExchange(notificationExchange, true, false);
     }
 
     @Bean

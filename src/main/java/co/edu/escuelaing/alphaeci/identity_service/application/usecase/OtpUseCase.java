@@ -54,7 +54,7 @@ public class OtpUseCase implements OtpPort {
         OtpEmbedded otp = new OtpEmbedded(rawCode, OTP_DURATION_MILLIS);
 
         otpRepository.save(normalizedEmail, otp, OtpType.EMAIL_VERIFICATION);
-        emailSender.sendOtp(normalizedEmail, rawCode);
+        emailSender.sendOtp(user.getId(), normalizedEmail, rawCode);
     }
 
     @Override

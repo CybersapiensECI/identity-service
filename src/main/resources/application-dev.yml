@@ -35,9 +35,12 @@ app:
 rabbitmq:
   exchange:
     identity: "${RABBITMQ_EXCHANGE:identity.exchange}"
+    # Owned by the notification-service; OTP and password-reset events go here.
+    notification: "${RABBITMQ_EXCHANGE_NOTIFICATION:notification.exchange}"
   routing-key:
-    otp: "${RABBITMQ_KEY_OTP:identity.email.otp}"
-    password-reset: "${RABBITMQ_KEY_PASSWORD_RESET:identity.email.password-reset}"
+    # Must match the auth.# binding of notification.auth.queue.
+    otp: "${RABBITMQ_KEY_OTP:auth.otp}"
+    password-reset: "${RABBITMQ_KEY_PASSWORD_RESET:auth.password-reset}"
     user-registered: "${RABBITMQ_KEY_USER_REGISTERED:identity.event.user-registered}"
     user-verified: "${RABBITMQ_KEY_USER_VERIFIED:identity.event.user-verified}"
     password-changed: "${RABBITMQ_KEY_PASSWORD_CHANGED:identity.event.password-changed}"

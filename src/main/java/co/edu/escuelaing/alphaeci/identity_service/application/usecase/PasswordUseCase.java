@@ -56,14 +56,14 @@ public class PasswordUseCase implements PasswordPort {
     public void forgotPassword(String email) {
         String normalizedEmail = email.trim().toLowerCase();
 
-        userRepository.findByEmail(normalizedEmail)
+        User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new InvalidInputException("User with given email not found"));
 
         String rawCode = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
         OtpEmbedded resetOtp = new OtpEmbedded(rawCode, OTP_DURATION_MILLIS);
 
         otpRepository.save(normalizedEmail, resetOtp, OtpType.PASSWORD_RESET);
-        emailSender.sendPasswordReset(normalizedEmail, rawCode);
+        emailSender.sendPasswordReset(user.getId(), normalizedEmail, rawCode);
     }
 
     @Override
