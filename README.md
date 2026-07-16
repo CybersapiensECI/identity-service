@@ -26,7 +26,3 @@ docker compose down
 | SonarQube  | http://localhost:9000 |
 
 > OTP codes and password reset codes are printed to the console log if RabbitMQ is unreachable.
-
----
-
-For platform setup and deployment guides see [GUIDES.md](GUIDES.md).

@@ -5,11 +5,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import co.edu.escuelaing.alphaeci.identity_service.domain.ports.out.EmailSenderPort;
+import co.edu.escuelaing.alphaeci.identity_service.infrastructure.external.dto.AccountVerifiedEventDto;
 import co.edu.escuelaing.alphaeci.identity_service.infrastructure.external.dto.OtpEventDto;
 import co.edu.escuelaing.alphaeci.identity_service.infrastructure.external.dto.PasswordResetEventDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Hands OTP and password reset codes to the notification-service, which owns email delivery.
+ *
+ * <p>Those two go to {@code notification.exchange} with {@code auth.*} routing keys, which is what
+ * the notification-service binds {@code notification.auth.queue} to. The verification confirmation
+ * still goes to {@code identity.exchange}: no consumer subscribes to it yet.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -17,38 +25,58 @@ public class EmailSenderAdapter implements EmailSenderPort {
 
     private static final String SEPARATOR = "============================================";
 
-    @Value("${rabbitmq.exchange.identity:identity.exchange}")
-    private String exchange;
+    @Value("${rabbitmq.exchange.notification:notification.exchange}")
+    private String notificationExchange;
 
-    @Value("${rabbitmq.routing-key.otp:identity.email.otp}")
+    @Value("${rabbitmq.exchange.identity:identity.exchange}")
+    private String identityExchange;
+
+    @Value("${rabbitmq.routing-key.otp:auth.otp}")
     private String otpKey;
 
-    @Value("${rabbitmq.routing-key.password-reset:identity.email.password-reset}")
+    @Value("${rabbitmq.routing-key.password-reset:auth.password-reset}")
     private String passwordResetKey;
+
+    @Value("${rabbitmq.routing-key.verified:identity.email.verified}")
+    private String verifiedKey;
 
     private final RabbitTemplate rabbitTemplate;
 
     @Override
-    public void sendOtp(String email, String code) {
+    public void sendOtp(String userId, String email, String code) {
         log.info(SEPARATOR);
         log.info("[EMAIL] OTP for {}: {}", email, code);
         log.info(SEPARATOR);
         try {
-            rabbitTemplate.convertAndSend(exchange, otpKey, new OtpEventDto(email, code));
+            rabbitTemplate.convertAndSend(notificationExchange, otpKey,
+                    OtpEventDto.verification(userId, email, code));
         } catch (Exception e) {
             log.warn("[DEV] RabbitMQ unavailable — OTP not sent by email. Use the code from the log above. Error: {}", e.getMessage());
         }
     }
 
     @Override
-    public void sendPasswordReset(String email, String code) {
+    public void sendPasswordReset(String userId, String email, String code) {
         log.info(SEPARATOR);
         log.info("[EMAIL] Password reset code for {}: {}", email, code);
         log.info(SEPARATOR);
         try {
-            rabbitTemplate.convertAndSend(exchange, passwordResetKey, new PasswordResetEventDto(email, code));
+            rabbitTemplate.convertAndSend(notificationExchange, passwordResetKey,
+                    PasswordResetEventDto.of(userId, email, code));
         } catch (Exception e) {
             log.warn("[DEV] RabbitMQ unavailable — reset code not sent by email. Use the code from the log above. Error: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendVerificationSuccess(String email) {
+        log.info(SEPARATOR);
+        log.info("[EMAIL] Account verified confirmation for {}", email);
+        log.info(SEPARATOR);
+        try {
+            rabbitTemplate.convertAndSend(identityExchange, verifiedKey, new AccountVerifiedEventDto(email));
+        } catch (Exception e) {
+            log.warn("[DEV] RabbitMQ unavailable — verification confirmation not sent by email. Error: {}", e.getMessage());
         }
     }
 }

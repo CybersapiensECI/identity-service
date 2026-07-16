@@ -84,7 +84,7 @@ class VerificationUseCaseTest {
 
         verify(userRepository).save(any(User.class));
         verify(otpRepository).save(eq(EMAIL), any(OtpEmbedded.class), eq(OtpType.EMAIL_VERIFICATION));
-        verify(emailSender).sendOtp(eq(EMAIL), anyString());
+        verify(emailSender).sendOtp(anyString(), eq(EMAIL), anyString());
     }
 
     @Test

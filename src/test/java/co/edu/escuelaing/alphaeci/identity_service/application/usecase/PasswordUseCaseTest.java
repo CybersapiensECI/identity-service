@@ -121,7 +121,7 @@ class PasswordUseCaseTest {
         passwordUseCase.forgotPassword(EMAIL);
 
         verify(otpRepository).save(eq(EMAIL), any(OtpEmbedded.class), eq(OtpType.PASSWORD_RESET));
-        verify(emailSender).sendPasswordReset(eq(EMAIL), anyString());
+        verify(emailSender).sendPasswordReset(anyString(), eq(EMAIL), anyString());
     }
 
     @Test
