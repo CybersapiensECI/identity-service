@@ -2,6 +2,7 @@
 
 Authentication and identity microservice for the AlphaECI platform (Escuela Colombiana de Ingeniería Julio Garavito). Handles OTP-based email verification, JWT login/refresh/logout, and password management. Events are published to RabbitMQ and consumed by the notification microservice.
 
+
 ---
 
 ## Quick Start (local development)
