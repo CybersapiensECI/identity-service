@@ -4,6 +4,8 @@ spring:
     port: "${RABBITMQ_PORT:5672}"
     username: "${RABBITMQ_USERNAME:guest}"
     password: "${RABBITMQ_PASSWORD:guest}"
+    ssl:
+      enabled: "${RABBITMQ_SSL_ENABLED:false}"
   datasource:
     url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/identity_db}"
     username: "${SPRING_DATASOURCE_USERNAME:postgres}"
