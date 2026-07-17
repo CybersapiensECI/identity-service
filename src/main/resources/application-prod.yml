@@ -29,6 +29,11 @@ app:
   jwt:
     secret: ${APP_JWT_SECRET}
 
+management:
+  health:
+    rabbit:
+      enabled: false
+
 rabbitmq:
   exchange:
     identity: ${RABBITMQ_EXCHANGE:identity.exchange}
