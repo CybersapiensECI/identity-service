@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 @Configuration
 public class RabbitMQConfig {
 
@@ -33,9 +37,19 @@ public class RabbitMQConfig {
         return new TopicExchange(notificationExchange, true, false);
     }
 
+    /**
+     * Jackson2JsonMessageConverter builds its own ObjectMapper by default, which
+     * does not have JavaTimeModule registered (unlike Spring Boot's autoconfigured
+     * one). Without it, LocalDate fields such as UserVerifiedEventDto.dateOfBirth
+     * serialize as [year, month, day] instead of an ISO string, breaking any
+     * consumer that expects a plain date string.
+     */
     @Bean
     public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return new Jackson2JsonMessageConverter(mapper);
     }
 
     @Bean
