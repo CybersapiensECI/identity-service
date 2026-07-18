@@ -12,6 +12,17 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      # Mismo problema que el connect-timeout de Redis de abajo, pero por
+      # Postgres: sin esto HikariCP usa su connection-timeout por defecto de
+      # 30s. Si SPRING_DATASOURCE_PASSWORD no coincide con la del servidor
+      # (p. ej. la contraseña de pgadmin se rota y no se actualiza el secret),
+      # CADA login/registro se cuelga 30s y devuelve 500 "Error interno" —
+      # indistinguible de "sin conexión" para el cliente. Verificado en
+      # producción (2026-07-18): login tardaba 30.3s -> 500 mientras el log
+      # real era "FATAL: password authentication failed for user pgadmin".
+      # Con esto falla en ~5s y el error de credenciales queda visible ya.
+      connection-timeout: 5000
   data:
     redis:
       host: ${SPRING_REDIS_HOST}
