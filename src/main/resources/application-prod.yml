@@ -19,6 +19,14 @@ spring:
       password: ${SPRING_REDIS_PASSWORD:}
       ssl:
         enabled: ${SPRING_DATA_REDIS_SSL_ENABLED:false}
+      # Sin esto, Lettuce usa sus defaults (~60s de command timeout): si
+      # Redis está mal configurado o inalcanzable, initVerification/login
+      # se cuelgan ~30-60s y devuelven 500 recién entonces — indistinguible
+      # para el cliente de "sin conexión" (verificado: 30.4s -> 500 en
+      # producción). Con esto falla en segundos y el error real queda en
+      # los logs del servicio en vez de parecer una caída total de red.
+      connect-timeout: 3s
+      timeout: 3s
   jpa:
     hibernate:
       ddl-auto: validate
